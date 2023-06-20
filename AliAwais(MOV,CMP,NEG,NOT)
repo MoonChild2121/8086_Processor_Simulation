@@ -1,0 +1,1282 @@
+assembly_instruction=["cmp","mov","neg","not"]
+reg_8bits=["al","ah","bh","bl","ch","cl","dl","dh"]
+reg_16bits=["ax", "bx", "cx", "dx"]
+reg_32bits=["eax", "ebx", "ecx", "edx"]
+global machine_code
+machine_code=''
+opcode=''
+direction_bit=''
+word_bit=''
+mode=''
+
+
+
+def command(param):
+    if param in assembly_instruction:
+        print("Command is : ", param)
+        return param
+
+def register_code(a):
+    if  a=="ax" or a=="al"or a=="eax":
+        return "000"
+    elif  a=="bx" or a=="bl" or a=="ebx":
+        return "011"
+    elif   a=="cx" or a=="cl" or a=="ecx":
+        return "001"
+    elif  a=="dx" or a=="dl" or a=="edx":
+        return "010"
+    elif a=="ah" or a=="sp":
+        return "100"
+    elif a=="bh" or a=="di":
+        return "111"
+    elif a=="ch" or a=="bp":
+        return "101"
+    elif a=="dh" or a=="si":
+        return "110"
+
+def reg_reg_CMP(param1,param2):
+    print("This is register to register case")
+    if (param1 in reg_8bits) and (param2 in reg_8bits):
+        print("Both registers are of 8 bits")
+        print("Destination is",param1)
+        print("Source is",param2)
+        print("The contents of both registers are compared")
+        direction_bit='1'
+        mode='11'
+        word_bit='0'
+        reg1=register_code(param1)
+        r_m=register_code(param2)
+        machine_code=opcode+direction_bit+word_bit+' '+mode+' '+reg1+' '+r_m
+        print("-------")
+        print(machine_code)
+        print("-------")
+    elif (param1 in reg_16bits) and (param2 in reg_16bits):
+        print("Both registers are of 16 bits")
+        print("Destination is",param1)
+        print("Source is",param2)
+        print("The contents of both registers are compared")
+        direction_bit='1'
+        mode='11'
+        word_bit='1'
+        reg1=register_code(param1)
+        r_m=register_code(param2)
+        machine_code=opcode+direction_bit+word_bit+' '+mode+' '+reg1+' '+r_m
+        print("-------")
+        print(machine_code)
+        print("-------")
+    elif (param1 in reg_32bits) and (param2 in reg_32bits):
+        print("Both registers are of 32 bits")
+        print("Destination is",param1)
+        print("Source is",param2)
+        print("The contents of both registers are compared")
+        direction_bit='1'
+        mode='11'
+        word_bit='1'
+        reg1=register_code(param1)
+        r_m=register_code(param2)
+        machine_code=opcode+direction_bit+word_bit+' '+mode+' '+reg1+' '+r_m
+        print("-------")
+        print(machine_code)
+        print("-------")
+    elif param1 in reg_8bits and (param2 in reg_32bits) or (param2 in reg_16bits) or param1 in reg_16bits and (param2 in reg_32bits) or (param2 in reg_8bits) or param1 in reg_32bits and (param2 in reg_8bits) or (param2 in reg_16bits):
+        print("Both registers are of different size, Hence bits are padded")
+        print("Destination is",param1)
+        print("Source is",param2)
+        print("The contents of both registers are compared")
+        direction_bit='0'
+        mode='11'
+        if (param2 in reg_16bits) or (param2 in reg_32bits):
+            word_bit="1"
+        else:
+            word_bit="0"
+        reg1=register_code(param1)
+        r_m=register_code(param2)
+        machine_code=opcode+direction_bit+word_bit+' '+mode+" "+reg1+' '+r_m
+        print("-------")
+        print(machine_code)
+        print("-------")
+    else:
+        print("Invalid Instruction")
+
+def reg_reg_MOV(param1,param2):
+    print("This is register to register case")
+    if (param1 in reg_8bits) and (param2 in reg_8bits):
+        print("Both registers are of 8 bits")
+        print("Destination is",param1)
+        print("Source is",param2)
+        print("The contents from",param2,"are moved to",param1)
+        direction_bit='1'
+        mode='11'
+        word_bit='0'
+        reg1=register_code(param1)
+        r_m=register_code(param2)
+        machine_code=opcode+direction_bit+word_bit+' '+mode+' '+reg1+' '+r_m
+        print("-------")
+        print(machine_code)
+        print("-------")
+    elif (param1 in reg_16bits) and (param2 in reg_16bits):
+        print("Both registers are of 16 bits")
+        print("Destination is",param1)
+        print("Source is",param2)
+        print("The contents from",param2,"are moved to",param1)
+        direction_bit='1'
+        mode='11'
+        word_bit='1'
+        reg1=register_code(param1)
+        r_m=register_code(param2)
+        machine_code=opcode+direction_bit+word_bit+' '+mode+' '+reg1+' '+r_m
+        print("-------")
+        print(machine_code)
+        print("-------")
+    elif (param1 in reg_32bits) and (param2 in reg_32bits):
+        print("Both registers are of 32 bits")
+        print("Destination is",param1)
+        print("Source is",param2)
+        print("The contents from",param2,"are moved to",param1)
+        direction_bit='1'
+        mode='11'
+        word_bit='1'
+        reg1=register_code(param1)
+        r_m=register_code(param2)
+        machine_code=opcode+direction_bit+word_bit+' '+mode+' '+reg1+' '+r_m
+        print("-------")
+        print(machine_code)
+        print("-------")
+    else:
+        print("Contents from different sizes of register cant be moved")
+
+def simple_memory_CMP(param1,param2):
+    if param2[0]=="[" and param2[-1]=="]":
+        mem_location=param2[1:-1]
+    else:
+        print("Invalid Instruction")
+    if mem_location in reg_8bits or reg_16bits or reg_32bits:
+        print("Source memory location is",param2)
+        if mem_location in reg_8bits and param1 in reg_8bits:
+            print("Memory location is of 8 bits")
+            print("Destination is",param1)
+            print("The contents at memory location",mem_location,"are compared with",param1)
+            direction_bit='1'
+            mode='00'
+            word_bit='0'
+            reg1=register_code(param1)
+            r_m=register_code(mem_location)
+            machine_code=opcode+direction_bit+word_bit+' '+mode+' '+reg1+' '+r_m
+            print("-------")
+            print(machine_code)
+            print("-------")
+        elif mem_location in reg_16bits and param1 in reg_16bits:
+            print("Memory location is of 16 bits")
+            print("Destination is",param1)
+            print("The contents at memory location",mem_location,"are compared with",param1)
+            direction_bit='1'
+            mode='00'
+            word_bit='1'
+            reg1=register_code(param1)
+            r_m=register_code(mem_location)
+            machine_code=opcode+direction_bit+word_bit+' '+mode+' '+reg1+' '+r_m
+            print("-------")
+            print(machine_code)
+            print("-------")
+        elif mem_location in reg_32bits and param1 in reg_32bits:
+            print("Memory location is of 32 bits")
+            print("Destination is",param1)
+            print("The contents at memory location",mem_location,"are compared with",param1)
+            direction_bit='1'
+            mode='00'
+            word_bit='1'
+            reg1=register_code(param1)
+            r_m=register_code(mem_location)
+            machine_code=opcode+direction_bit+word_bit+' '+mode+' '+reg1+' '+r_m
+            print("-------")
+            print(machine_code)
+            print("-------")
+        elif (param1 in reg_8bits and (mem_location in reg_32bits) or (mem_location in reg_16bits)) or (param1 in reg_16bits and (mem_location in reg_32bits) or (mem_location in reg_8bits)) or(param1 in reg_32bits and (mem_location in reg_8bits) or (mem_location in reg_16bits)):
+            print("Bits are padded for equal comparison")
+            print("Destination is",param1)
+            print("The contents at memory location",mem_location,"are compared with",param1)
+            direction_bit='1'
+            mode='00'
+            if (mem_location in reg_16bits) or (mem_location in reg_32bits):
+                word_bit="1"
+            else:
+                word_bit="0"
+            reg1=register_code(param1)
+            r_m=register_code(mem_location)
+            machine_code=opcode+direction_bit+word_bit+' '+mode+' '+reg1+' '+r_m
+            print("-------")
+            print(machine_code)
+            print("-------")
+        else:
+            print("Invalid Instruction")
+
+def simple_memory_MOV(param1,param2):
+    if param2[0]=="[" and param2[-1]=="]":
+        mem_location=param2[1:-1]
+    else:
+        print("Invalid Instruction")
+    if mem_location in reg_8bits or reg_16bits or reg_32bits:
+        print("Source memory location is",param2)
+        if mem_location in reg_8bits and param1 in reg_8bits:
+            print("Memory location is of 8 bits")
+            print("Destination is",param1)
+            print("The contents at memory location",mem_location,"are moved to",param1)
+            direction_bit='1'
+            mode='00'
+            word_bit='0'
+            reg1=register_code(param1)
+            r_m=register_code(mem_location)
+            machine_code=opcode+direction_bit+word_bit+' '+mode+' '+reg1+' '+r_m
+            print("-------")
+            print(machine_code)
+            print("-------")
+        elif mem_location in reg_16bits and param1 in reg_16bits:
+            print("Memory location is of 16 bits")
+            print("Destination is",param1)
+            print("The contents at memory location",mem_location,"are moved to",param1)
+            direction_bit='1'
+            mode='00'
+            word_bit='1'
+            reg1=register_code(param1)
+            r_m=register_code(mem_location)
+            machine_code=opcode+direction_bit+word_bit+' '+mode+' '+reg1+' '+r_m
+            print("-------")
+            print(machine_code)
+            print("-------")
+        elif mem_location in reg_32bits and param1 in reg_32bits:
+            print("Memory location is of 32 bits")
+            print("Destination is",param1)
+            print("The contents at memory location",mem_location,"are moved to",param1)
+            direction_bit='1'
+            mode='00'
+            word_bit='1'
+            reg1=register_code(param1)
+            r_m=register_code(mem_location)
+            machine_code=opcode+direction_bit+word_bit+' '+mode+' '+reg1+' '+r_m
+            print("-------")
+            print(machine_code)
+            print("-------")
+        else:
+            print("Contents from different sizes of memory locations cant be moved")
+
+def displacement_memory_CMP(param1, param2):
+    if param2[0]=="[" and param2[-1]=="]":
+        mem_location=param2[1:-1]
+    else:
+        print("Invalid Instruction")
+    d=mem_location.split("+")
+    mem_reg=d[0]
+    displacement=d[1]
+    if mem_reg in reg_8bits or reg_16bits or reg_32bits:
+        print("Source memory location is",param2)
+    else:
+        print("Invalid Instruction")
+    if mem_reg in reg_8bits and param1 in reg_8bits:
+        print("Memory location is of 8 bits")
+        print("Destination is",param1)
+        print("Displacement is of",displacement)
+        print("The contents at memory location",mem_reg,"with displacement of",displacement,"are compared with",param1)        
+        direction_bit='1'
+        if int(displacement) <= 8:
+            mode='01'
+        else:
+            mode='10'
+        word_bit='0'
+        reg1=register_code(param1)
+        r_m=register_code(mem_reg)
+        a=bin(int(displacement))
+        str(a)
+        a=a[2:]
+        machine_code=opcode+direction_bit+word_bit+' '+mode+' '+reg1+' '+r_m+' '+a
+        print("-------")
+        print(machine_code)
+        print("-------")
+    elif mem_reg in reg_16bits and param1 in reg_16bits:
+        print("Memory location is of 16 bits")
+        print("Destination is",param1)
+        print("Displacement is of",displacement)
+        print("The contents at memory location",mem_reg,"with displacement of",displacement,"are compared with",param1)
+        direction_bit='1'
+        if int(displacement) <= 8:
+            mode='01'
+        else:
+            mode='10'
+        word_bit='1'
+        reg1=register_code(param1)
+        r_m=register_code(mem_reg)
+        a=bin(int(displacement))
+        str(a)
+        a=a[2:]
+        machine_code=opcode+direction_bit+word_bit+' '+mode+' '+reg1+' '+r_m+' '+a
+        print("-------")
+        print(machine_code)
+        print("-------")
+    elif mem_reg in reg_32bits and param1 in reg_32bits:
+        print("Memory location is of 32 bits")
+        print("Destination is",param1)
+        print("Displacement is of",displacement)
+        print("The contents at memory location",mem_reg,"with displacement of",displacement,"are compared with",param1)
+        direction_bit='1'
+        if int(displacement) <= 8:
+            mode='01'
+        else:
+            mode='10'
+        word_bit='1'
+        reg1=register_code(param1)
+        r_m=register_code(mem_reg)
+        a=bin(int(displacement))
+        str(a)
+        a=a[2:]
+        machine_code=opcode+direction_bit+word_bit+' '+mode+' '+reg1+' '+r_m+' '+a
+        print("-------")
+        print(machine_code)
+        print("-------")
+    elif (param1 in reg_8bits and (mem_reg in reg_32bits) or (mem_reg in reg_16bits)) or (param1 in reg_16bits and (mem_reg in reg_32bits) or (mem_reg in reg_8bits)) or(param1 in reg_32bits and (mem_reg in reg_8bits) or (mem_reg in reg_16bits)):
+        print("Bits are padded for equal comparison")
+        print("Destination is",param1)
+        print("Displacement is of",displacement)
+        print("The contents at memory location",mem_reg,"with displacement of",displacement,"are compared with",param1)
+        direction_bit='1'
+        if int(displacement) <= 8:
+            mode='01'
+        else:
+            mode='10'
+        if (mem_reg in reg_16bits) or (mem_reg in reg_32bits):
+            word_bit="1"
+        else:
+            word_bit="0"
+        reg1=register_code(param1)
+        r_m=register_code(mem_reg)
+        a=bin(int(displacement))
+        str(a)
+        a=a[2:]
+        machine_code=opcode+direction_bit+word_bit+' '+mode+' '+reg1+' '+r_m+' '+a
+        print("-------")
+        print(machine_code)
+        print("-------")
+    else:
+        print("Invalid Instruction")
+
+def displacement_memory_MOV(param1, param2):
+    if param2[0]=="[" and param2[-1]=="]":
+        mem_location=param2[1:-1]
+    else:
+        print("Invalid Instruction")
+    d=mem_location.split("+")
+    mem_reg=d[0]
+    displacement=d[1]
+    if mem_reg in reg_8bits or reg_16bits or reg_32bits:
+        print("Source memory location is",param2)
+    else:
+        print("Invalid Instruction")
+    if mem_reg in reg_8bits and param1 in reg_8bits:
+        print("Memory location is of 8 bits")
+        print("Destination is",param1)
+        print("Displacement is of",displacement)
+        print("The contents at memory location",mem_reg,"with displacement of",displacement,"are moved to",param1)
+        direction_bit='1'
+        if int(displacement) <= 8:
+            mode='01'
+        else:
+            mode='10'
+        word_bit='0'
+        reg1=register_code(param1)
+        r_m=register_code(mem_reg)
+        a=bin(int(displacement))
+        str(a)
+        a=a[2:]
+        machine_code=opcode+direction_bit+word_bit+' '+mode+' '+reg1+' '+r_m+' '+a
+        print("-------")
+        print(machine_code)
+        print("-------")
+    elif mem_reg in reg_16bits and param1 in reg_16bits:
+        print("Memory location is of 16 bits")
+        print("Destination is",param1)
+        print("Displacement is of",displacement)
+        print("The contents at memory location",mem_reg,"with displacement of",displacement,"are moved to",param1)
+        direction_bit='1'
+        if int(displacement) <= 8:
+            mode='01'
+        else:
+            mode='10'
+        word_bit='1'
+        reg1=register_code(param1)
+        r_m=register_code(mem_reg)
+        a=bin(int(displacement))
+        str(a)
+        a=a[2:]
+        machine_code=opcode+direction_bit+word_bit+' '+mode+' '+reg1+' '+r_m+' '+a
+        print("-------")
+        print(machine_code)
+        print("-------")
+    elif mem_reg in reg_32bits and param1 in reg_32bits:
+        print("Memory location is of 32 bits")
+        print("Destination is",param1)
+        print("Displacement is of",displacement)
+        print("The contents at memory location",mem_reg,"with displacement of",displacement,"are moved to",param1)
+        direction_bit='1'
+        if int(displacement) <= 8:
+            mode='01'
+        else:
+            mode='10'
+        word_bit='1'
+        reg1=register_code(param1)
+        r_m=register_code(mem_reg)
+        a=bin(int(displacement))
+        str(a)
+        a=a[2:]
+        machine_code=opcode+direction_bit+word_bit+' '+mode+' '+reg1+' '+r_m+' '+a
+        print("-------")
+        print(machine_code)
+        print("-------")
+ 
+    else:
+        print("Contents from different sizes of memory locations cant be moved")
+
+def reg_memory(param1,param2):
+    if instruction=="cmp":  
+        if "+" in param2:
+            displacement_memory_CMP(param1,param2)
+        else:
+            simple_memory_CMP(param1,param2)
+    if instruction=="mov":
+        if "+" in param2:
+            displacement_memory_MOV(param1,param2)
+        else:
+            simple_memory_MOV(param1,param2)
+
+def memory_reg_CMP(param1,param2):
+    if "+" in param1:
+        if param1[0]=="[" and param1[-1]=="]":
+            mem_location=param1[1:-1]
+        else:
+            print("Invalid Instruction")
+        d=mem_location.split("+")
+        mem_reg=d[0]
+        displacement=d[1]
+        if mem_reg in reg_8bits or reg_16bits or reg_32bits:
+            print("The memory location is",param1)
+        else:
+            print("Invalid Instruction")
+        if mem_reg in reg_8bits and param1 in reg_8bits:
+            print("Memory location is of 8 bits")
+            print("Destination is",param1)
+            print("Displacement is of",displacement)
+            print("The contents at memory location",mem_reg,"with displacement of",displacement,"are compared with",param2)
+            direction_bit='0'
+            if int(displacement) <= 8:
+                mode='01'
+            else:
+                mode='10'
+            word_bit='0'
+            reg1=register_code(param2)
+            r_m=register_code(mem_reg)
+            a=bin(int(displacement))
+            str(a)
+            a=a[2:]
+            machine_code=opcode+direction_bit+word_bit+' '+mode+' '+reg1+' '+r_m+' '+a
+            print("-------")
+            print(machine_code)
+            print("-------")
+        elif mem_reg in reg_16bits and param1 in reg_16bits:
+            print("Memory location is of 16 bits")
+            print("Destination is",param1)
+            print("Displacement is of",displacement)
+            print("The contents at memory location",mem_reg,"with displacement of",displacement,"are compared with",param2)
+            direction_bit='0'
+            if int(displacement) <= 8:
+                mode='01'
+            else:
+                mode='10'
+            word_bit='0'
+            reg1=register_code(param2)
+            r_m=register_code(mem_reg)
+            a=bin(int(displacement))
+            str(a)
+            a=a[2:]
+            machine_code=opcode+direction_bit+word_bit+' '+mode+' '+reg1+' '+r_m+' '+a
+            print("-------")
+            print(machine_code)
+            print("-------")
+        elif mem_reg in reg_32bits and param1 in reg_32bits:
+            print("Memory location is of 32 bits")
+            print("Destination is",param1)
+            print("Displacement is of",displacement)
+            print("The contents at memory location",mem_reg,"with displacement of",displacement,"are compared with",param2)
+            direction_bit='0'
+            if int(displacement) <= 8:
+                mode='01'
+            else:
+                mode='10'
+            word_bit='0'
+            reg1=register_code(param2)
+            r_m=register_code(mem_reg)
+            a=bin(int(displacement))
+            str(a)
+            a=a[2:]
+            machine_code=opcode+direction_bit+word_bit+' '+mode+' '+reg1+' '+r_m+' '+a
+            print("-------")
+            print(machine_code)
+            print("-------")
+        elif (param1 in reg_8bits and (mem_reg in reg_32bits) or (mem_reg in reg_16bits)) or (param1 in reg_16bits and (mem_reg in reg_32bits) or (mem_reg in reg_8bits)) or(param1 in reg_32bits and (mem_reg in reg_8bits) or (mem_reg in reg_16bits)):
+            print("Bits are padded for equal comparison")
+            print("Destination is",param1)
+            print("Displacement is of",displacement)
+            print("The contents at memory location",mem_reg,"with displacement of",displacement,"are compared with",param2)
+            direction_bit='0'
+            if int(displacement) <= 8:
+                mode='01'
+            else:
+                mode='10'
+            if (mem_reg in reg_16bits) or (mem_reg in reg_32bits):
+                word_bit="1"
+            else:
+                word_bit="0"
+            reg1=register_code(param2)
+            r_m=register_code(mem_reg)
+            a=bin(int(displacement))
+            str(a)
+            a=a[2:]
+            machine_code=opcode+direction_bit+word_bit+' '+mode+' '+reg1+' '+r_m+' '+a
+            print("-------")
+            print(machine_code)
+            print("-------")
+        else:
+            print("Invalid Instruction")
+    else:
+        if param1[0]=="[" and param1[-1]=="]":
+            mem_location=param1[1:-1]
+        else:
+            print("Invalid Instruction")
+        if mem_location in reg_8bits or reg_16bits or reg_32bits:
+            print("The memory location is",mem_location)
+            if mem_location in reg_8bits:
+                print("Memory location is of 8 bits")
+                print("Destination is",param1)
+                print("The contents at memory location",param2,"are compared with",mem_location)
+                direction_bit='0'
+                mode='00'
+                word_bit='0'
+                reg1=register_code(param2)
+                r_m=register_code(mem_location)
+                machine_code=opcode+direction_bit+word_bit+' '+mode+' '+reg1+' '+r_m
+                print("-------")
+                print(machine_code)
+                print("-------")
+            elif mem_location in reg_16bits:
+                print("Memory location is of 16 bits")
+                print("Destination is",param1)
+                print("The contents at memory location",param2,"are compared with",mem_location)
+                direction_bit='0'
+                mode='00'
+                word_bit='1'
+                reg1=register_code(param2)
+                r_m=register_code(mem_location)
+                machine_code=opcode+direction_bit+word_bit+' '+mode+' '+reg1+' '+r_m
+                print("-------")
+                print(machine_code)
+                print("-------")
+            elif mem_location in reg_32bits:
+                print("Memory location is of 32 bits")
+                print("Destination is",param1)
+                print("The contents at memory location",param2,"are compared with",mem_location)
+                direction_bit='0'
+                mode='00'
+                word_bit='1'
+                reg1=register_code(param2)
+                r_m=register_code(mem_location)
+                machine_code=opcode+direction_bit+word_bit+' '+mode+' '+reg1+' '+r_m
+                print("-------")
+                print(machine_code)
+                print("-------")
+            else:
+                print("Invalid Instruction")
+
+def memory_reg_MOV(param1,param2):
+    if "+" in param1:
+        if param1[0]=="[" and param1[-1]=="]":
+            mem_location=param1[1:-1]
+        else:
+            print("Invalid Instruction")
+        d=mem_location.split("+")
+        mem_reg=d[0]
+        displacement=d[1]
+        if mem_reg in reg_8bits or reg_16bits or reg_32bits:
+            print("The memory location is",param1)
+        else:
+            print("Invalid Instruction")
+        if mem_reg in reg_8bits and param1 in reg_8bits:
+            print("Memory location is of 8 bits")
+            print("Destination is",param1)
+            print("Displacement is of",displacement)
+            print("The contents at memory location",mem_reg,"with displacement of",displacement,"are moved to",param2)
+            if int(displacement) <= 8:
+                mode='01'
+            else:
+                mode='10'
+            word_bit='0'
+            reg1=register_code(param2)
+            r_m=register_code(mem_reg)
+            a=bin(int(displacement))
+            str(a)
+            a=a[2:]
+            machine_code=opcode+direction_bit+word_bit+' '+mode+' '+reg1+' '+r_m+' '+a
+            print("-------")
+            print(machine_code)
+            print("-------")
+        elif mem_reg in reg_16bits and param1 in reg_16bits:
+            print("Memory location is of 16 bits")
+            print("Destination is",param1)
+            print("Displacement is of",displacement)
+            print("The contents at memory location",mem_reg,"with displacement of",displacement,"are moved to",param2)
+            if int(displacement) <= 8:
+                mode='01'
+            else:
+                mode='10'
+            word_bit='0'
+            reg1=register_code(param2)
+            r_m=register_code(mem_reg)
+            a=bin(int(displacement))
+            str(a)
+            a=a[2:]
+            machine_code=opcode+direction_bit+word_bit+' '+mode+' '+reg1+' '+r_m+' '+a
+            print("-------")
+            print(machine_code)
+            print("-------")
+        elif mem_reg in reg_32bits and param1 in reg_32bits:
+            print("Memory location is of 32 bits")
+            print("Destination is",param1)
+            print("Displacement is of",displacement)
+            print("The contents at memory location",mem_reg,"with displacement of",displacement,"are moved to",param2)
+            if int(displacement) <= 8:
+                mode='01'
+            else:
+                mode='10'
+            word_bit='0'
+            reg1=register_code(param2)
+            r_m=register_code(mem_reg)
+            a=bin(int(displacement))
+            str(a)
+            a=a[2:]
+            machine_code=opcode+direction_bit+word_bit+' '+mode+' '+reg1+' '+r_m+' '+a
+            print("-------")
+            print(machine_code)
+            print("-------")
+        else:
+            print("Content from different sizes if memory cannot be moved")
+    else:
+        if param1[0]=="[" and param1[-1]=="]":
+            mem_location=param1[1:-1]
+        else:
+            print("Invalid Instruction")
+        if mem_location in reg_8bits or reg_16bits or reg_32bits:
+            print("The memory location is",mem_location)
+            if mem_location in reg_8bits:
+                print("Memory location is of 8 bits")
+                print("Destination is",param1)
+                print("The contents at memory location",param2,"are moved to",mem_location)
+                direction_bit='0'
+                mode='00'
+                word_bit='0'
+                reg1=register_code(param2)
+                r_m=register_code(mem_location)
+                machine_code=opcode+direction_bit+word_bit+' '+mode+' '+reg1+' '+r_m
+                print("-------")
+                print(machine_code)
+                print("-------")
+            elif mem_location in reg_16bits:
+                print("Memory location is of 16 bits")
+                print("Destination is",param1)
+                print("The contents at memory location",param2,"are moved to",mem_location)
+                direction_bit='0'
+                mode='00'
+                word_bit='1'
+                reg1=register_code(param2)
+                r_m=register_code(mem_location)
+                machine_code=opcode+direction_bit+word_bit+' '+mode+' '+reg1+' '+r_m
+                print("-------")
+                print(machine_code)
+                print("-------")
+            elif mem_location in reg_32bits:
+                print("Memory location is of 32 bits")
+                print("Destination is",param1)
+                print("The contents at memory location",param2,"are moved to",mem_location)
+                direction_bit='0'
+                mode='00'
+                word_bit='1'
+                reg1=register_code(param2)
+                r_m=register_code(mem_location)
+                machine_code=opcode+direction_bit+word_bit+' '+mode+' '+reg1+' '+r_m
+                print("-------")
+                print(machine_code)
+                print("-------")
+            else:
+                print("Invalid Instruction")
+
+def decimal(param2):
+    base=param2[-1]
+    if base in ['h', 'b', 'd']:
+        if base == "h":
+            print("Data is in Hexadecimal")
+            param2 = int(param2[0:-1])
+        elif base == "b":
+            print("Data is in Binary")
+            param2 = int(param2[0:-1])
+        elif base == "d":
+            print("Data is in Decimal")
+            param2 = int(param2[0:-1])
+        else:
+            print("the data is in dec")
+            param2 = int(param2[0:])
+    return param2
+
+def constant_check(param1,param2):
+    if param1[0]=="[" and param1[-1]=="]":
+        param1=param1[1:-1]
+        if param1 in reg_16bits:
+            if param2[-1]=="h":
+                if len(param2)>5:
+                        print("Invalid Instruction")
+            elif param2[-1]=="b":
+                if len(param2)>17:
+                    print("invalid instruction")  
+                elif len(param2)>2**16:
+                    print("invalid instruction")     
+        elif param1 in reg_8bits:
+            if param2[-1]=="h":
+                if len(param2)>9:
+                    print("Invalid Instruction")
+            elif param2[-1]=="b":
+                if len(param2)>33:
+                    print("invalid instruction")
+                elif len(param2)>2**32:
+                    print("invalid instruction")
+        elif param1 in reg_32bits:
+            if param2[-1]=="h":
+                if len(param2)>3:
+                    print("invalid instruction")
+            if param2[-1]=="b":
+                if len(param2)>9:
+                    print("invalid instruction")
+                elif len(param2)>2**8:
+                    print("invalid instruction")
+
+def reg_NOT(param):   
+    if param in reg_8bits:
+        print("All the 8 bits in",param,"are negated.")
+        mode='11'
+        word_bit='0'
+        reg1='010'
+        r_m=register_code(param)
+        machine_code=opcode+word_bit+' '+mode+' '+reg1+' '+r_m
+        print("-------")
+        print(machine_code)
+        print("-------")
+    elif param in reg_16bits:
+        print("All the 16 bits in",param,"are negated.")
+        mode='11'
+        word_bit='1'
+        reg1='010'
+        r_m=register_code(param)
+        machine_code=opcode+word_bit+' '+mode+' '+reg1+' '+r_m
+        print("-------")
+        print(machine_code)
+        print("-------")
+    elif param in reg_32bits:
+        print("All the 32 bits in",param,"are negated.")
+        mode='11'
+        word_bit='1'
+        reg1='010'
+        r_m=register_code(param)
+        machine_code=opcode+word_bit+' '+mode+' '+reg1+' '+r_m
+        print("-------")
+        print(machine_code)
+        print("-------")
+    else:
+        print("Invalid Instruction")
+    
+def mem_NOT(param):
+    if param[0]=="[" and param[-1]=="]":
+        rm=param[1:-1]
+        if rm in reg_8bits:
+            print("All the 8 bits at memory location",rm,"are negated.")
+            mode='00'
+            word_bit='0'
+            reg1='010'
+            r_m=register_code(rm)
+            machine_code=opcode+word_bit+' '+mode+' '+reg1+' '+r_m
+            print("-------")
+            print(machine_code)
+            print("-------")
+        elif rm in reg_16bits:
+            print("All the 16 bits at memory location",rm,"are negated.")
+            mode='00'
+            word_bit='1'
+            reg1='010'
+            r_m=register_code(rm)
+            machine_code=opcode+word_bit+' '+mode+' '+reg1+' '+r_m
+            print("-------")
+            print(machine_code)
+            print("-------")
+        elif rm in reg_32bits:
+            print("All the 32 bits at memory location",rm,"are negated.")
+            mode='00'
+            word_bit='0'
+            reg1='010'
+            r_m=register_code(rm)
+            machine_code=opcode+word_bit+' '+mode+' '+reg1+' '+r_m
+            print("-------")
+            print(machine_code)
+            print("-------")
+        elif "+" in rm:
+            x=rm.split("+")
+            y=x[0]
+            if y[-1] in ['h','b','d']:
+                print("All the bits at memory location",y,"are negated.")
+            
+                
+                if int(x[1]) <= 8:
+                    mode='01'
+                else:
+                    mode='10'
+                if y[-1]=='h'or y[-1]=='d':
+                    word_bit='1'
+                else:
+                    word_bit="0"
+                reg1='010'
+                r_m='000'
+                a=bin(int(x[1]))
+                str(a)
+                a=a[2:]
+                machine_code=opcode+word_bit+' '+mode+' '+reg1+' '+r_m+" "+a
+                print("-------")
+                print(machine_code)
+                print("-------")
+        else:
+            mode='00'
+            if rm[-1]=='h'or rm[-1]=='d':
+                word_bit='1'
+            else:
+                word_bit="0"
+            reg1='010'
+            r_m='000'
+            machine_code=opcode+word_bit+' '+mode+' '+reg1+' '+r_m
+            print("-------")
+            print(machine_code)
+            print("-------")
+    else:
+        print("Invalid Instruction")
+    
+def reg_mem_NOT(param):
+    if (param in reg_8bits) or (param in reg_16bits) or (param in reg_32bits):
+        reg_NOT(param)
+    else:
+        mem_NOT(param)
+
+def reg_NEG(param):   
+    if param in reg_8bits:
+        print(param,"is negated to","-",param)
+        mode='11'
+        word_bit='0'
+        reg1='010'
+        r_m=register_code(param)
+        machine_code=opcode+word_bit+' '+mode+' '+reg1+' '+r_m
+        print("-------")
+        print(machine_code)
+        print("-------")
+    elif param in reg_16bits:
+        print(param,"is negated to","-",param)
+        mode='11'
+        word_bit='1'
+        reg1='010'
+        r_m=register_code(param)
+        machine_code=opcode+word_bit+' '+mode+' '+reg1+' '+r_m
+        print("-------")
+        print(machine_code)
+        print("-------")
+    elif param in reg_32bits:
+        print(param,"is negated to","-",param)
+        mode='11'
+        word_bit='1'
+        reg1='010'
+        r_m=register_code(param)
+        machine_code=opcode+word_bit+' '+mode+' '+reg1+' '+r_m
+        print("-------")
+        print(machine_code)
+        print("-------")
+    else:
+        print("Invalid Instruction")
+    
+def mem_NEG(param):
+    if param[0]=="[" and param[-1]=="]":
+        rm=param[1:-1]
+        if rm in reg_8bits:
+            print("All the 8 bits at memory location",rm,"are negated to","-[",rm,"]")
+            mode='00'
+            word_bit='0'
+            reg1='010'
+            r_m=register_code(rm)
+            machine_code=opcode+word_bit+' '+mode+' '+reg1+' '+r_m
+            print("-------")
+            print(machine_code)
+            print("-------")
+        elif rm in reg_16bits:
+            print("All the 16 bits at memory location",rm,"are negated to","-[",rm,"]")
+            mode='00'
+            word_bit='1'
+            reg1='010'
+            r_m=register_code(rm)
+            machine_code=opcode+word_bit+' '+mode+' '+reg1+' '+r_m
+            print("-------")
+            print(machine_code)
+            print("-------")
+        elif rm in reg_32bits:
+            print("All the 32 bits at memory location",rm,"are negated to","-[",rm,"]")
+            mode='00'
+            word_bit='1'
+            reg1='010'
+            r_m=register_code(rm)
+            machine_code=opcode+word_bit+' '+mode+' '+reg1+' '+r_m
+            print("-------")
+            print(machine_code)
+            print("-------")
+        elif "+" in rm:
+            x=rm.split("+")
+            y=x[0]
+            if y[-1] in ['h','b','d']:
+                print("All the bits at memory location",rm,"are negated to","-[",rm,"]")
+                if int(x[1]) <= 8:
+                    mode='01'
+                else:
+                    mode='10'
+                if y[-1]=='h'or y[-1]=='d':
+                    word_bit='1'
+                else:
+                    word_bit="0"
+                reg1='010'
+                r_m='000'
+                a=bin(int(x[1]))
+                str(a)
+                a=a[2:]
+                machine_code=opcode+word_bit+' '+mode+' '+reg1+' '+r_m+" "+a
+                print("-------")
+                print(machine_code)
+                print("-------")
+        else:
+            print("All the bits at memory location",rm,"are negated to","-[",rm,"]")
+            mode='00'
+            if rm[-1]=='h'or rm[-1]=='d':
+                word_bit='1'
+            else:
+                word_bit="0"
+            reg1='010'
+            r_m='000'
+            machine_code=opcode+word_bit+' '+mode+' '+reg1+' '+r_m
+            print("-------")
+            print(machine_code)
+            print("-------")
+    else:
+        print("Invalid Instruction1")
+    
+def reg_mem_NEG(param):
+    if (param in reg_8bits) or (param in reg_16bits) or (param in reg_32bits):
+        reg_NEG(param)
+    else:
+        mem_NEG(param)
+
+a=str(input("Enter the instruction:"))
+a=a.lower()
+input_list=a.split(" ")
+instruction=input_list[0]
+command(instruction)
+
+if instruction=="neg":
+    opcode='001000'
+    operand1=input_list[1]
+    reg_mem_NEG(operand1)
+
+if instruction=="not":
+    opcode="001000"
+    operand1=input_list[1]
+    reg_mem_NOT(operand1)
+
+if instruction=="cmp":
+    opcode="000001"
+    operands=input_list[1].split(",")
+    operand1=operands[0]
+    operand2=operands[1]
+    if (operand1 in reg_8bits) or (operand1 in reg_16bits) or (operand1 in reg_32bits):
+        if (operand2 in reg_8bits) or (operand2 in reg_16bits) or (operand2 in reg_32bits):
+            reg_reg_CMP(operand1,operand2)
+        elif operand2[0] == "[" and operand2[-1] == "]":
+            reg_memory(operand1,operand2)
+        elif (operand2 not in reg_8bits) or (operand2 not in reg_16bits) or (operand2 not in reg_32bits) and operand2[0] != "[" and operand2[-1] != "]":
+                opcode='0001'
+                constant= decimal(operand2)
+                constant_check(operand1,operand2)
+                print("Destination register : ", operand1)
+                print("This is immediate data case")
+                print("Source is a constant data :",constant)
+                print("The given constant data:",constant,"is compared with contents in",operand1)
+                mode='00'
+                if (operand1 in reg_16bits) or (operand1 in reg_32bits):
+                    word_bit="1"
+                else:
+                    word_bit="0"
+                reg1='111'
+                r_m=register_code(operand1)
+                a=bin(constant)
+                str(a)
+                a=a[2:]
+                machine_code=opcode+"0"+word_bit+' '+mode+' '+reg1+r_m+' '+a
+                print("-------")
+                print(machine_code)
+                print("-------")         
+        else:
+            print("invalid instruction1")
+    elif (operand1[0]=="[" and operand1[-1]=="]") and (operand2[0] != "[" and operand2[-1] != "]") :
+            opcode='0001'
+            constant= decimal(operand2)
+            constant_check(operand1,operand2)
+            if (operand1[1:-1] in reg_8bits) or (operand1[1:-1] in reg_16bits) or (operand1[1:-1] in reg_32bits):
+                if operand1[0]=="[" and operand1[-1]=="]":
+                    mem_loc=operand1[1:-1]
+                    if '+' in mem_loc:
+                        d=mem_loc.split('+')
+                        mem_reg=d[0]
+                        displacement=d[1]
+                        print("Destination is register memory : ", operand1)
+                        print("This is immediate data case,constant data is compared to memory location with displacement of",displacement)
+                        print("Source is a constant data :",constant)
+                        print("The given constant data:",constant,"is compared to the data at location",operand1)
+                        if (mem_reg in reg_16bits) or (mem_reg in reg_32bits):
+                            word_bit="1"
+                        else:
+                            word_bit="0"
+                        if int(displacement) <= 8:
+                            mode='01'
+                        else:
+                            mode='10'
+                        reg1='000'
+                        r_m=register_code(mem_reg)
+                        a=bin(constant)
+                        str(a)
+                        a=a[2:]
+                        b=bin(int(displacement))
+                        str(b)
+                        b=b[2:]
+                        machine_code=opcode+"0"+word_bit+' '+mode+' '+reg1+r_m+' '+b+" "+a
+                        print("-------")
+                        print(machine_code)
+                        print("-------")
+                    if '+' not in mem_loc:
+                        print("Destination is register memory : ", operand1)
+                        print("This is immediate data case,constant data is compared to memory location")
+                        print("Source is a constant data :",constant)
+                        print("The given constant data:",constant,"is compared to data in memory location",operand1)
+                        if (mem_loc in reg_16bits) or (mem_loc in reg_32bits):
+                            word_bit="1"
+                        else:
+                            word_bit="0"
+                        mode='00'
+                        reg1='000'
+                        r_m=register_code(mem_loc)
+                        a=bin(constant)
+                        str(a)
+                        a=a[2:]
+                        machine_code=opcode+'0'+word_bit+' '+mode+' '+reg1+r_m+" "+a
+                        print("-------")
+                        print(machine_code)
+                        print("-------")
+                    else:
+                        print("Invalid Instruction")
+                
+            else:
+                if '+' in operand1[1:-1]:
+                    d=operand1[1:-1].split('+')
+                    direct_memory_location=d[0]
+                    displacement=d[1]
+                    print("Destination is memory : ", direct_memory_location)
+                    print("This is immediate data case,constant data is compared to memory location")
+                    print("Source is a constant data :",constant)
+                    print("The given constant data:",constant,"is compared to",direct_memory_location,"with displacement of",displacement)
+                    if int(displacement) <= 8:
+                        mode='01'
+                    else:
+                        mode='10'
+                    reg1='000'
+                    r_m='000'
+                    a=bin(constant)
+                    str(a)
+                    a=a[2:]
+                    b=bin(int(displacement))
+                    str(b)
+                    b=b[2:]
+                    machine_code=opcode+"0"+' '+mode+' '+reg1+r_m+' '+b+" "+a
+                    print("-------")
+                    print(machine_code)
+                    print("-------")
+                if '+' not in operand1[1:-1]:
+                    print("Destination is memory : ",operand1[1:-1])
+                    print("This is immediate data case,constant data is compared to memory location")
+                    print("Source is a constant data :",constant)
+                    print("The given constant data:",constant,"is compared to",operand1[1:-1])
+                    mode='00'
+                    reg1='000'
+                    r_m='000'
+                    a=bin(constant)
+                    str(a)
+                    a=a[2:]
+                    machine_code=opcode+"0"+' '+mode+' '+reg1+r_m+" "+a
+                    print("-------")
+                    print(machine_code)
+                    print("-------")
+    elif operand1[0] == "[" and operand2[-1] == "]" and (operand2 in reg_8bits) or (operand2 in reg_16bits) or (operand2 in reg_32bits):
+        memory_reg_CMP(operand1,operand2)  
+    else:
+        print("Invalid Instruction11")
+
+if instruction == "mov":
+    opcode="000000"
+    operands=input_list[1].split(",")
+    operand1=operands[0]
+    operand2=operands[1] 
+    if (operand1 in reg_8bits) or (operand1 in reg_16bits) or (operand1 in reg_32bits):
+        if (operand2 in reg_8bits) or (operand2 in reg_16bits) or (operand2 in reg_32bits):
+            reg_reg_MOV(operand1,operand2)
+        elif operand2[0] == "[" and operand2[-1] == "]":
+            reg_memory(operand1,operand2)
+        elif (operand2 not in reg_8bits) or (operand2 not in reg_16bits) or (operand2 not in reg_32bits) and operand2[0] != "[" and operand2[-1] != "]":
+                opcode='0000'
+                constant= decimal(operand2)
+                constant_check(operand1,operand2)
+                print("Destination register : ", operand1)
+                print("This is immediate data case,constant data is moved to register")
+                print("Source is a constant data :",constant)
+                print("The given constant data:",constant,"is moved to",operand1)
+                mode='00'
+                if (operand1 in reg_16bits) or (operand1 in reg_32bits):
+                    word_bit="1"
+                else:
+                    word_bit="0"
+                reg1=register_code(operand1)
+                a=bin(constant)
+                str(a)
+                a=a[2:]
+                machine_code=opcode+word_bit+' '+mode+' '+reg1+' '+a
+                print("-------")
+                print(machine_code)
+                print("-------")
+        else:
+            print("Invalid Instructions")
+    elif (operand1[0]=="[" and operand1[-1]=="]") and (operand2[0] != "[" and operand2[-1] != "]") :
+            opcode='0000'
+            constant= decimal(operand2)
+            constant_check(operand1,operand2)
+            if (operand1[1:-1] in reg_8bits) or (operand1[1:-1] in reg_16bits) or (operand1[1:-1] in reg_32bits):
+                if operand1[0]=="[" and operand1[-1]=="]":
+                    mem_loc=operand1[1:-1]
+                    if '+' in mem_loc:
+                        d=mem_loc.split('+')
+                        mem_reg=d[0]
+                        displacement=d[1]
+                        print("Destination is register memory : ", operand1)
+                        print("This is immediate data case,constant data is moved to memory location with displacement of",displacement)
+                        print("Source is a constant data :",constant)
+                        print("The given constant data:",constant,"is moved to the location",operand1)
+                        if (mem_reg in reg_16bits) or (mem_reg in reg_32bits):
+                            word_bit="1"
+                        else:
+                            word_bit="0"
+                        if int(displacement) <= 8:
+                            mode='01'
+                        else:
+                            mode='10'
+                        reg1='000'
+                        r_m=register_code(mem_reg)
+                        a=bin(constant)
+                        str(a)
+                        a=a[2:]
+                        b=bin(int(displacement))
+                        str(b)
+                        b=b[2:]
+                        machine_code=opcode+word_bit+' '+mode+' '+reg1+r_m+' '+b+" "+a
+                        print("-------")
+                        print(machine_code)
+                        print("-------")
+                    if '+' not in mem_loc:
+                        print("Destination is register memory : ", operand1)
+                        print("This is immediate data case,constant data is moved to memory location")
+                        print("Source is a constant data :",constant)
+                        print("The given constant data:",constant,"is moved to",operand1)
+                        if (mem_loc in reg_16bits) or (mem_loc in reg_32bits):
+                            word_bit="1"
+                        else:
+                            word_bit="0"
+                        mode='00'
+                        reg1='000'
+                        r_m=register_code(mem_loc)
+                        a=bin(constant)
+                        str(a)
+                        a=a[2:]
+                        machine_code=opcode+word_bit+' '+mode+' '+reg1+r_m+" "+a
+                        print("-------")
+                        print(machine_code)
+                        print("-------")
+                    else:
+                        print("Invalid Instruction")
+                
+            else:
+                if '+' in operand1[1:-1]:
+                    d=operand1[1:-1].split('+')
+                    direct_memory_location=d[0]
+                    displacement=d[1]
+                    print("Destination is memory : ", direct_memory_location)
+                    print("This is immediate data case,constant data is moved to memory location")
+                    print("Source is a constant data :",constant)
+                    print("The given constant data:",constant,"is moved to",direct_memory_location,"with displacement of",displacement)
+                    if int(displacement) <= 8:
+                        mode='01'
+                    else:
+                        mode='10'
+                    reg1='000'
+                    r_m='000'
+                    a=bin(constant)
+                    str(a)
+                    a=a[2:]
+                    b=bin(int(displacement))
+                    str(b)
+                    b=b[2:]
+                    machine_code=opcode+' '+mode+' '+reg1+r_m+' '+b+" "+a
+                    print("-------")
+                    print(machine_code)
+                    print("-------")
+                if '+' not in operand1[1:-1]:
+                    print("Destination is memory : ",operand1[1:-1])
+                    print("This is immediate data case,constant data is moved to memory location")
+                    print("Source is a constant data :",constant)
+                    print("The given constant data:",constant,"is moved to",operand1[1:-1])
+                    mode='00'
+                    reg1='000'
+                    r_m='000'
+                    a=bin(constant)
+                    str(a)
+                    a=a[2:]
+                    machine_code=opcode+' '+mode+' '+reg1+r_m+" "+a
+                    print("-------")
+                    print(machine_code)
+                    print("-------")
+    elif operand1[0] == "[" and operand2[-1] == "]" and (operand2 in reg_8bits) or (operand2 in reg_16bits) or (operand2 in reg_32bits):
+        memory_reg_MOV(operand1,operand2)       
+    else:
+        print("Invalid Instruction11")
+    
+    
+        
+    
+    
+
+
+
+
+    

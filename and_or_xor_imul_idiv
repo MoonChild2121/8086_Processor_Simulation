@@ -1,0 +1,248 @@
+instruction = ["and", "or", "xor","imul","idiv"]
+reg_list1 = ["ax", "bx", "cx", "dx"]
+reg_list2=["eax", "ebx", "ecx", "edx"]
+reg_list3=["al","ah","bh","bl","ch","cl","dl","dh"]
+
+x = input("Enter instruction : ")
+print("Your instruction is : ", x)
+
+x = x.lower()
+p = x.split(" ")
+q = p[0]
+
+def inDec(operand2):
+    base = operand2[-1]
+    if base in ['h', 'b', 'd']:
+        if base == "h":
+            print("the data is in hex :")
+            operand2 = int(operand2[0:-1], 16)
+        elif base == "b":
+            print("the data is in bin :")
+            operand2 = int(operand2[0:-1], 2)
+        elif base == "d":
+            print("the data is in dec: ")
+            operand2 = int(operand2[0:-1], 10)
+        else:
+            print("the data is in dec: ")
+            operand2 = int(operand2[0:], 10)
+
+    return operand2
+
+
+def command(param):
+    if param in instruction:
+        print("Command is : ", param)
+        return param
+
+def valid(param1,param2):
+    if param1 in reg_list1:
+        if param2[-1]=="h":
+            if len(param2)>5:
+                    print("Invalid Instruction")
+                    return False
+        elif param2[-1]=="b":
+            if len(param2)>17:
+                print("invalid instruction") 
+                return False  
+        elif param2>2**16:
+            print("invalid instruction")
+            return False     
+    elif param1 in reg_list2:
+        if param2[-1]=="h":
+            if len(param2)>9:
+                    print("Invalid Instruction")
+                    return False
+        elif param2[-1]=="b":
+            if len(param2)>33:
+                print("invalid instruction")
+                return False
+        elif param2>2**32:
+            print("invalid instruction")
+            return False
+    elif param1 in reg_list3:
+        if param2[-1]=="h":
+            if len(param2)>3:
+                print("invalid instruction")
+                return False
+        if param2[-1]=="b":
+            if len(param2)>9:
+                print("invalid instruction")
+                return False
+        elif param2>2**8:
+            print("invalid instruction")
+            return False
+    return param2
+
+def reg_reg(param1,param2):
+    print("Destination is register")
+    print("Destination register : ", param1)
+    print("Source is a register")
+    print("Source register : ", param2)
+    print("This is register to register case")
+
+def relative_memory(param1,param2):
+        b = param2[1:-1]
+        a = b.split("+")
+        m = a[0]
+        n = a[1]
+        if (param1 in reg_list1 and m in reg_list1) or (param1 in reg_list2 and param2 in reg_list2) or (param1 in reg_list3 and param2 in reg_list3):
+            print("Base register in memory : ", m)
+            print("Displacement is : ", n)
+        else:
+            print("invalid instruction")
+            return False
+        print("Destination is register")
+        print("Destination register : ", param1)
+        print("This is relative memory to register case")
+    
+def simple_memory(param1,param2):
+    mem = param2[1:-1]
+    if param1 in reg_list1 and mem in reg_list1:
+        print("Source is a memory. Memory address = ", mem)    
+    elif param1 in reg_list2 and mem in reg_list2:
+        print("Source is a memory. Memory address = ", mem)
+    elif param1 in reg_list3 and mem in reg_list3:
+        print("Source is a memory. Memory address = ", mem)
+    else:
+        print ("invalid instruction")
+        return False
+    print("Destination is register")
+    print("Destination register : ", param1)
+    print("This is memory to register case")
+
+
+def reg_memory(param1,param2):
+    if "+" in param2:
+        relative_memory(param1,param2)
+    else:
+        simple_memory(param1,param2)
+ 
+def reg_code(name):
+    if name=="ax" or name=="al":
+        return "000"
+    elif name=="bx" or name=="bl":
+        return "011"
+    elif name=="cx" or name=="cl":
+        return "001"
+    elif name=="dx" or name=="dl":
+        return "010"
+    elif name=="ah" or name=="sp":
+        return "100"
+    elif name=="bh" or name=="di":
+        return "111"
+    elif name=="ch" or name=="bp":
+        return "101"
+    elif name=="dh" or name=="si":
+        return "110"
+
+def andop(value1,value2, bitsize):
+    for i in range(bitsize):
+        value1[i]=value1[i]*value2[i]
+    return value1
+
+def orop(value1,value2,bitsize):
+    for i in range(bitsize):
+        value1[i]=value1[i]+value2[i]
+        if value1[i]==2:
+            value1[i]=1
+    return value1
+
+
+def xorop(value1,value2,bitsize):
+    for i in range(bitsize):
+        if value1[i]!=value2[i]:
+            value1[i]=1
+        else:
+            value1[i]=0
+    return value1
+
+def imulop(value1,value2):
+    value1=value1*value2
+    return value1
+
+def idivop(value1,value2):
+    value1=value1/value2
+    return value1
+
+exec=command(q)
+
+r = p[1].split(",")
+operand1 = r[0]
+operand2 = r[1]
+
+if operand1 in reg_list1 and operand2 in reg_list1:
+    bits=16
+    reg_reg(operand1,operand2)
+    op1code=reg_code(operand1)
+    op2code=reg_code(operand2)
+
+elif operand1 in reg_list2 and operand2 in reg_list2:
+    bits=32
+    reg_reg(operand1,operand2)
+    op1code=reg_code(operand1)
+    op2code=reg_code(operand2)
+
+elif operand1 in reg_list3 and operand2 in reg_list3:
+    bits=8
+    reg_reg(operand1,operand2)
+    op1code=reg_code(operand1)
+    op2code=reg_code(operand2)
+
+elif operand1 in (reg_list1 or reg_list2 or reg_list3) and operand2[0] == "[" and operand2[-1] == "]":
+    reg_memory(operand1,operand2)    
+    op1code=reg_code(operand1)
+
+elif operand1 in (reg_list1 or reg_list2 or reg_list3) and operand2 not in (reg_list1 or reg_list2 or reg_list3) and operand2[0] != "[" and operand2[-1] != "]":
+        v=valid(operand1,operand2)
+        print("Destination is register")
+        print("Destination register : ", operand1)
+        print("This is immediate data case")
+        imm = inDec(operand2)
+        print("Source is a constant data : Value = ", imm)
+   
+elif operand1[0] == "[" and operand1[-1] == "]":
+
+    b = operand1[1:-1]
+    a = b.split("+")
+    if len(a) > 1:
+        m = a[0]
+        n = a[1]
+    elif len(a) == 1:
+        m = a[0]
+        n = 0
+    if m in reg_list1:
+        if operand2[0] == "[" or operand2[-1] == "]":
+            print("Invalid instructon\nMemory to Memory is not allowed")
+        elif operand2 in (reg_list1 or reg_list2 or reg_list3):
+            print("Destination is a memory.  Address = ", m)
+            print("Displacement is : ", n)
+            print("Source is a register")
+            print("Source register : ", operand2)
+            print("This is register to memory case")
+        elif operand2 not in (reg_list1 or reg_list2 or reg_list3) and operand2[0] != "[" and operand2[-1] != "]":
+
+            print("This is immediate data case")
+            print("Destination is a memory. Register in memory = ", m)
+            print("Displacement is : ", n)
+            imm = inDec(operand2)
+            print("Source is a constant data : Value = ", imm)
+    else:
+        print("Invalid Instruction")
+else:
+    print("Invalid Instruction")
+
+if exec=="and":
+    opcode=100000
+    #result=andop(operand1,operand2,bits)
+elif exec=="or":
+    opcode=100000
+    #result=orop(operand1,operand2,bits)
+elif exec=="xor":
+    opcode=100001
+    result=xorop(operand1,operand2,bits)
+elif exec=="imul":
+    opcode=100010
+    #result=imulop(operand1,operand2)
+elif exec=="idiv":
+    opcode=100100
+    #result=idivop(operand1,operand2)
